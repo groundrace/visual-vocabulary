@@ -1,4 +1,4 @@
-
+    
 <html>
 <head>
     <title>Visual Vocabulary</title>
@@ -8,7 +8,6 @@
 </head>
 <body>
     <style>
-        text{font-family:metric}
     </style>
 
     <script>  
@@ -23,14 +22,14 @@
       window.onresize=redraw;
 
       container.append("h1")
-        .text("Visual Vocabulary")
+        .text("Vocabulario Visuale")
       container.append("h2")
-        .text("Designing with data")
+        .text("Visualizzare i dati")
       container.append("p")
-        .text("There are so many ways to visualise data – how do we know which one to pick? Click on the coloured categories below to decide which data relationship is most important in your story, then look at the different types of chart within the category to form some initial ideas about what might work best. This list is not meant to be exhaustive, nor a wizard, but is a useful starting point for making informative and meaningful data visualisations")
+        .text("Ci sono tanti modi per visualizzare i dati - come possiamo scegliere quello da utilizzare? Seleziona una delle categorie colorate di seguito per decidere quale relazione dati è più importante nella tua storia, quindi guarda i diversi tipi di grafici all'interno della categoria per formulare alcune idee iniziali su ciò che potrebbe funzionare meglio. Questo elenco non intende essere esaustivo, né un wizard, ma è un utile punto di partenza per effettuare visualizzazioni di dati informative e significative.")
         .attr('class', 'intro-text')
-      container.append("p")
-        .text("Inspired by the Graphic Continuum by Jon Schwabish and Severino Ribecca")
+//      container.append("p")
+//        .text("Inspired by the Graphic Continuum by Jon Schwabish and Severino Ribecca")
 
       let plotWidth=container.node().getBoundingClientRect().width;
       let cellWidth=(plotWidth)/plotCategories.length
