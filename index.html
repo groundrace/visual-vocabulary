@@ -1,14 +1,22 @@
-    
+
 <html>
 <head>
+      <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+    -->
+
+
     <title>Visual Vocabulary</title>
     <link rel="stylesheet" type="text/css" href="./mani.css">
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="v2-data.js"></script>
 </head>
 <body>
-    <style>
-    </style>
+    <header>  </header>
     <div class="container">
       <div class="intro-section">
         <h1>Vocabolario Visuale</h1>
@@ -18,7 +26,15 @@
         </p>
       </div>
     </div>  
-    <script>  
+
+
+    <!-- Bootstrap JS 
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    -->
+
+    <script language="javascript">  
 
     d3.csv("chartTypes.csv",function(error, chartData){
 
@@ -81,6 +97,7 @@
           div.append("div")
             .attr("class","chart-title")
             .style("height",30)
+            .attr("title",function(d){return d.chartName})
             .html(function(d){return d.avail=="TRUE" ? "<a href='vizes/"+d.chartName+"'>"+d.chartName+"</a>" : d.chartName})
 
           div.append("img")
@@ -197,8 +214,6 @@
 
       }
     })//end data load
-
-
 
     </script>
 </body>
