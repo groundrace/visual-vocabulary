@@ -20,10 +20,10 @@ let catData={"categories":[
 {"category":"Magnitudine", "colour":"#A3488C",
     "description":"Mostra il confronti tra le dimensioni. Queste possono essere relative (solo in grado di vedere le più grandi / la più grande) o assoluto (è necessario vedere le differenze). Di solito utilizzare per mostrare una quantità fisica (ad esempio, barili, euro o persone) piuttosto che un tasso calcolato o percentuale",
     "example":"Produzione di materie prime, capitalizzazione di mercato"},
-{"category":"Spaziale", "colour":"#9C9D94",
+{"category":"Spaziale", "colour":"#86877f",
     "description":"Utilizzato sopratutto quando posizioni precise o schemi geografici dei dati sono più importanti di qualsiasi altra cosa. La componente geografica o spaziale è quindi di rilievo rispetto al resto dei dati",
     "example":"Mappe di localizzazione, densità di popolazione, ubicazioni di risorse naturali, rischio / impatto di disastri naturali, aree di bacino idrico, variazione dei risultati elettorali"},
-{"category":"Flusso", "colour":"#ABBD67",
+{"category":"Flusso", "colour":"#7a8748",
     "description":"Mostra il volume o l'intensità del movimento tra due o più stati o condizioni. Queste potrebbero essere anche sequenze logiche, temporali o posizioni nello spazio o geografiche",
     "example":"Movimento di fondi, commercio, migranti, cause legali, informazioni; grafici di relazione"}]
 }
