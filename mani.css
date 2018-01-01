@@ -149,6 +149,23 @@ p.intro-text {
 	font-weight: 200;
 	margin-right: 15px;
 }
+.chart-title {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 700;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.chart-title a {
+	color: #fff;
+	text-decoration: none;
+}
+
+.chart-title a:hover {
+	text-decoration: underline;
+}
+
 .chartDesc{
 	font-size: 16px;
 	line-height: 19px;

@@ -79,9 +79,9 @@
             .style("max-width",chartWidth)
 
           div.append("div")
-            .attr("class","chart")
-            .style("height",55)
-            .html(function(d){return d.chartName})
+            .attr("class","chart-title")
+            .style("height",30)
+            .html(function(d){return "<a href='vizes/"+d.chartName+"'>"+d.chartName+"</a>"})
 
           div.append("img")
             .attr("class","chart")
@@ -98,7 +98,7 @@
 
           div.append("div")
             .attr("class","chartDesc")
-            .html(function(d){return d.description})
+            .html(function(d){return d.description_it})
 
       }
 
