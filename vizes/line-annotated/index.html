@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="swoopy-drag.js"></script>
+  <style>
+    body { margin: 0; position: fixed; top: 0; right: 0; bottom: 0; left: 0; }
+    
+    body {
+      font-family: monospace;
+    }
+    
+    .x-axis, .y-axis {
+      font-family: monospace;
+      font-size: 9px;
+    }
+    
+    .line {
+      fill: none;
+      stroke-width: 1px;
+      stroke: url(#svgGradient);
+      opacity: 0.2;
+    }
+    
+    .annotation {
+      fill: none;
+      stroke: black;
+    }
+    
+    #arrowhead {
+      fill: none;
+      stroke: black;
+    }
+    
+    .annotations path {
+      fill: none;
+      stroke: black;
+    }
+    
+    #arrow {
+      fill: none;
+      stroke: black;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    var margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    
+    var width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+    
+    var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    var defs = svg.append("defs");
+		
+    // add gradient
+  	defs.append("linearGradient")
+      .attr("id", "svgGradient")
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1", 0).attr("y1", height)
+      .attr("x2", 0).attr("y2", height / 4)
+    .selectAll("stop")
+      .data([
+        {offset: "0%", color: "blue"},
+        {offset: "25%", color: "red"},
+        {offset: "100%", color: "red"}
+      ])
+    .enter().append("stop")
+      .attr("offset", function(d) { return d.offset; })
+      .attr("stop-color", function(d) { return d.color; });
+    
+    svg.append('marker')
+      .attr('id', 'arrow')
+      .attr('viewBox', '-10 -10 20 20')
+      .attr('markerWidth', 20)
+      .attr('markerHeight', 20)
+      .attr('orient', 'auto')
+    .append('path')
+      .attr('d', 'M-6.75,-6.75 L 0,0 L -6.75,6.75')
+    
+    var legend = svg.append("g")
+    	.attr("transform", "translate(" + width +",0)")
+    
+    legend.append("text")
+    	.attr("text-anchor", "end")
+    	.text("CO2 emissions (metric tons per capita)");
+		
+    var x = d3.scaleTime()
+    	.range([0, width]);
+    
+    var y = d3.scaleLinear()
+    	.range([height, 0]);
+    
+    var annotations = [
+      {
+        "year": "2001",
+        "value": 65,
+        "path": "M -58,-54 A 41.833 41.833 0 0 1 -28,10",
+        "text": "Qatar",
+        "textOffset": [
+          -108,
+          -51
+        ]
+      },
+      {
+        "year": "1970",
+        "value": 65,
+        "path": "M -31,94 A 46.787 46.787 0 0 0 -55,154",
+        "text": "USA",
+        "textOffset": [
+          -17,
+          93
+        ]
+      },
+      {
+        "year": "1980",
+        "value": 65,
+        "path": "M -62,116 A 48.668 48.668 0 0 1 -71,182",
+        "text": "Great Britain",
+        "textOffset": [
+          -118,
+          103
+        ]
+      },
+      {
+        "year": "1990",
+        "value": 65,
+        "path": "M 71,136 A 103.606 103.606 0 0 0 -18,228",
+        "text": "World",
+        "textOffset": [
+          86,
+          141
+        ]
+      },
+      {
+        "year": "1980",
+        "value": 65,
+        "path": "M 71,100 A 103.606 103.606 0 0 0 18,210",
+        "text": "Italy",
+        "textOffset": [
+          76,
+          101
+        ]
+      }
+    ];
+    
+    var swoopy = d3.swoopyDrag()
+    	.x(function(d) { return x(parseTime(d.year)) })
+    	.y(function(d) { return y(d.value) })
+    	.annotations(annotations);
+    
+    var parseTime = d3.timeParse("%Y");
+    
+    var line = d3.line()
+      .x(function(d) { return x(parseTime(d.year)) })
+      .y(function(d) { return y(d.value) })
+    	.curve(d3.curveMonotoneX)
+
+    function parse(d) {
+      var country = {
+        country: d.name,
+        code: d.code,
+        data: []
+      };
+      
+      for (var i in d) {
+        if (i !== "name" && i !== "code") {
+          if (d[i]) {
+            country.data.push({
+              year: +i,
+              value: +d[i]
+            })
+          }
+        }
+      }
+      
+      return country;
+    }
+    
+    d3.csv("co2_emissions.csv", parse, function(error, countries) {
+      if (error) throw error;
+      
+      var yMax = d3.max(countries[0].data, function(d) {
+        return parseTime(d.year);
+      });
+      
+      x.domain([new Date("1960"), yMax]);
+      
+      var yMin = d3.min(countries, function(d) {
+        return d3.min(d.data, function(v) {
+          // clamping at 0 for now
+          return Math.max(0, v.value);
+        })
+      });
+      
+      var yMax = d3.max(countries, function(d) {
+        return d3.max(d.data, function(v) {
+          return v.value;
+        })
+      });
+      
+      y.domain([yMin, yMax])
+      	.nice();
+      
+      
+      var xAxis = svg.append("g")
+      	.attr("class", "x-axis")
+      	.attr("transform", "translate(0," + height + ")")
+      	.call(d3.axisBottom(x).tickSizeOuter(0));
+      
+      var yAxis = svg.append("g")
+      	.attr("class", "y-axis")
+      	.call(d3.axisLeft(y));
+      
+      var lines = svg.append("g")
+      	.attr("class", "countries")
+      	.selectAll("g")
+      	.data(countries)
+       .enter().append("g")
+      	.attr("class", "country")
+      	.attr("id", function(d) {
+        	return d.code;
+      	});
+      
+      lines.append("path")
+      	.attr("class", "line")
+      	.attr("id", function(d) {
+        	return d.code;
+      	})
+      	.attr("d", function(d) {
+        	return line(d.data);
+      	});
+      
+      // highlight WLD
+      lines.select("path#WLD")
+      	.style("opacity", 1)
+      	.style("stroke", "white")
+      	.style("stroke-width", 3)
+      lines.select("g#WLD.country")
+      	.raise();
+      
+      // highlight GBR
+      lines.select("path#GBR")
+      	.style("opacity", 1)
+      	.style("stroke-width", 2)
+      lines.select("g#GBR.country")
+      	.raise();
+      
+      // highlight USA
+      lines.select("path#USA")
+      	.style("opacity", 1)
+      	.style("stroke-width", 2)
+      lines.select("g#USA.country")
+      	.raise();
+      
+      // highlight QAT
+      lines.select("path#QAT")
+      	.style("opacity", 1)
+      	.style("stroke-width", 2)
+      lines.select("g#QAT.country")
+      	.raise();
+
+      // highlight ITA
+      lines.select("path#ITA")
+        .style("opacity", 1)
+        .style("stroke-width", 2)
+      lines.select("g#ITA.country")
+        .raise();
+      
+      var swoopySel = svg.append('g')
+      	.attr("class", "annotations")
+      	.call(swoopy);
+      
+      swoopySel.selectAll('path').attr('marker-end', 'url(#arrow)');
+      
+    });
+    
+    
+  </script>
+</body>

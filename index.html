@@ -81,7 +81,7 @@
           div.append("div")
             .attr("class","chart-title")
             .style("height",30)
-            .html(function(d){return "<a href='vizes/"+d.chartName+"'>"+d.chartName+"</a>"})
+            .html(function(d){return d.avail=="TRUE" ? "<a href='vizes/"+d.chartName+"'>"+d.chartName+"</a>" : d.chartName})
 
           div.append("img")
             .attr("class","chart")

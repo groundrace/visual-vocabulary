@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="d3-annotation.min.js"></script>
+  <style>
+    body { margin:0; position:fixed; top:0; right:0; bottom:0; left:0; }
+    
+    .surplus-deficit-area {
+      fill: black;
+      opacity: 0.1;
+    }
+    
+    .surplus-deficit-line { 
+      fill: none;
+      stroke: black;
+    }
+    
+    .title {
+      font-family: sans-serif;
+    }
+    
+    .annotation-note text {
+      fill: black;
+      font-family: sans-serif;
+      font-size: 12px;
+    }
+    
+    .annotation-connector path {
+      stroke: black;
+    }
+    
+    rect.annotation-note-bg {
+    	fill-opacity: 0.75;   
+    }
+    
+  </style>
+</head>
+
+<body>
+  <script>
+		var margin = {top: 100, right: 100, bottom: 100, left: 100};
+    
+    var width = 960 - margin.left - margin.right,
+    		height = 500 - margin.top - margin.bottom;
+    
+    var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var defs = svg.append("defs");
+    
+    var parseYear = d3.timeParse("%Y");
+    var parseDate = d3.timeParse("%d-%m-%Y");
+    
+    var partyToColour = {
+      "Labour": "#d50000",
+      "Conservative": "#0087dc",
+      "Conservative & Liberal Democrat": "#0087dc"
+    };
+    
+    var x = d3.scaleTime()
+    	.range([0, width]);
+    
+    var y = d3.scaleLinear()
+    	.range([height, 0]);
+    
+    var xAxis = d3.axisBottom()
+    	.scale(x);
+    
+    var yAxis = d3.axisLeft()
+    	.scale(y);
+    
+    function parseBudgetDeficit(d) { 
+      return {
+        date: parseYear(d.year),
+        deficit: +d.deficit_percent
+      };
+    }
+    
+    function parseGovernments(d) {
+      return {
+        party: d.party,
+        leader: d.leader,
+        startDate: parseDate(d.start),
+        endDate: parseDate(d.end)
+      }
+    }
+    
+    var area = d3.area()
+      .x(function(d) { return x(d.date); })
+      .y1(function(d) { return y(d.deficit); });
+    
+    var line = d3.line()
+    	.x(function(d) { return x(d.date); })
+    	.y(function(d) { return y(d.deficit); });
+    
+    d3.queue()
+    	.defer(d3.csv, "budget-deficit-gdp.csv", parseBudgetDeficit)
+    	.defer(d3.csv, "governments.csv", parseGovernments)
+    	.await(ready);
+    
+    function ready(error, data, govs) {
+      if (error) throw error;
+      
+      x.domain(d3.extent(data, function(d) { return d.date; }));
+      
+      y.domain([Math.floor(d3.min(data, function(d) { return d.deficit; })),
+               	Math.ceil(d3.max(data, function(d) { return d.deficit; }))]);
+      
+      govs = govs.filter(function(g) {
+        return g.startDate < x.domain()[1];
+      });
+      
+      area.y0(y(0));
+      
+      defs.append("mask")
+      	.attr("id", "deficitMask")
+      	.append("path")
+      	.attr("d", function() {
+        	return area(data);
+      	})
+      	.attr("fill", "white")
+      	.attr("opacity", 0.8);
+      
+      defs.append("clipPath")
+      	.attr("id", "clipAxes")
+      	.append("rect")
+      	.attr("width", width)
+      	.attr("height", height);
+      
+      var governments = svg.append("g")
+      	.attr("class", "governments")
+      	.attr("clip-path", "url(#clipAxes)");
+      
+      governments.selectAll("rect")
+      	.data(govs)
+      .enter().append("rect")
+      	.attr("x", function(d) {
+        	return x(d.startDate);
+      	})
+      	.attr("y", 0)
+      	.attr("width", function(d, i) {
+            return x(d.endDate) - x(d.startDate) + 0.2;
+      	})
+      	.attr("height", height)
+      	.attr("fill", function(d) {
+          console.log(d);
+        	return partyToColour[d.party];
+      	})
+      	.attr("mask", "url(#deficitMask)")
+      	.on("mouseover", function(d) {
+        	showLabel(d);
+     		})
+      	.on("mouseout", function() {
+        	// should think of a better way of doing this
+        	// ideally should be showing/hiding not appending/removing
+        	d3.select(".annotation-group").remove();
+      	})
+      
+      svg.append("path")
+      	.datum(data)
+      	.attr("class", "surplus-deficit-line")
+				.attr("d", line)
+      
+      svg.append("g")
+      	.attr("class", "x axis")
+      	.attr("transform", "translate(0," + height + ")")
+      	.call(xAxis);
+      
+      svg.append("text")
+      	.attr("class", "title")
+      	.attr("transform", "translate(" + width / 2 + ",0)")
+      	.attr("dy", "-2em")
+      	.attr("text-anchor", "middle")
+      	.text("UK government deficit / surplus as percentage of GDP");
+      
+      svg.append("g")
+      	.attr("class", "y axis")
+      	.call(yAxis);
+      
+      function showLabel(g) {
+       	var annotations = [{
+          note: { 
+            label: g.leader,
+          	title: g.party
+          },
+          data: { 
+            start: g.startDate,
+            end: g.endDate,
+          },
+          subject: {
+            x1: x(g.startDate),
+            x2: x(g.endDate)
+          },
+          dy: -50,
+          dx: 10
+        }]
+        
+        var makeAnnotations = d3.annotation()
+      	.type(d3.annotationXYThreshold)
+      	.accessors({
+        	x: function(d) {
+            return (x(d.start) + x(d.end)) / 2;
+          },
+        	y: function() {
+            return y(0);
+					}
+      	})
+      	.annotations(annotations);
+        
+    		var annotationsGroup = svg.append("g")
+    			.attr("class", "annotation-group")
+        	.call(makeAnnotations);
+      }
+      
+    }
+
+  </script>
+</body>
