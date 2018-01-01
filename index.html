@@ -23,32 +23,13 @@
     d3.csv("chartTypes.csv",function(error, chartData){
 
       let plotCategories=catData.categories
-/*
-      let container = d3.select("body")
-        .append("div")
-        .attr("class", 'container');
-
-      window.onresize=redraw;
-
-      container.append("h1")
-        .text("Vocabulario Visuale")
-      container.append("h2")
-        .text("Visualizzare i dati")
-      container.append("p")
-        .text("Ci sono tanti modi per visualizzare i dati - come possiamo scegliere quello da utilizzare? Seleziona una delle categorie colorate di seguito per decidere quale relazione dati è più importante nella tua storia, quindi guarda i diversi tipi di grafici all'interno della categoria per formulare alcune idee iniziali su ciò che potrebbe funzionare meglio. Questo elenco non intende essere esaustivo, né un wizard, ma è un utile punto di partenza per effettuare visualizzazioni di dati informative e significative.")
-        .attr('class', 'intro-text')
-//      container.append("p")
-//        .text("Inspired by the Graphic Continuum by Jon Schwabish and Severino Ribecca")
-*/
       let container = d3.select(".container");
-
       window.onresize=redraw;
-
       let plotWidth=container.node().getBoundingClientRect().width;
       let cellWidth=(plotWidth)/plotCategories.length
       let menus=container.append("svg")
         .attr("width",plotWidth)
-        .attr("height",160)
+        .attr("height",function(d){return window.innerWidth<950 ? 180 : 100})
       let category=menus.selectAll(".categ")
         .data(plotCategories)
         .enter()
@@ -61,20 +42,24 @@
       category.append("text")
         .attr("class","buttonText")
         .attr("x",function(d,i){return (cellWidth*i)+(cellWidth/2)})
-        .attr("y",80)
+        .attr("y",function(d){return window.innerWidth<950 ? 110 : 40})
         .attr("height",20)
         .attr("width",50)
         .attr("text-anchor", "middle")
         .attr("fill",function(d) {return d.colour})
+        .attr("text-anchor", function(d){return window.innerWidth<950 ? "start" : "middle"})
+        .attr("transform",function(d,i){return window.innerWidth<950 ? "translate("+( (cellWidth*i)+(cellWidth/2) -100 )+","+( (cellWidth*i)+(cellWidth/2)+10 )+") rotate(-90 50 50)" : "translate(0,0)"})
         .text(function(d){return d.category})
 
       category.append("rect")
         .attr("class","button")
         .attr("x",function(d,i){return cellWidth*i})
-        .attr("y",90)
+        .attr("y",function(d){return window.innerWidth<950 ? 120 : 50})
         .attr("height",10)
         .attr("width",cellWidth)
         .attr("fill",function(d){return d.colour})
+
+        //redraw();
 
       function addCharts(lookUp){
         let chartWidth=((plotWidth-60)/6)-10
@@ -152,16 +137,19 @@
         d3.selectAll(".panel")
           .remove()
         let x1=cellWidth*this.id+(cellWidth/2)
+        let step1 = window.innerWidth<950 ? 130: 60;
+        let step2 = window.innerWidth<950 ? 150: 80;
+        let step3 = window.innerWidth<950 ? 190: 120;
         let lineData = [
-        {"x":x1,"y":100},
-        {"x":x1,"y":100},
-        {"x":x1,"y":100},
-        {"x":x1,"y":100}];
+        {"x":x1,"y":step1},
+        {"x":x1,"y":step1},
+        {"x":x1,"y":step1},
+        {"x":x1,"y":step1}];
         let lineData2 = [
-        {"x":x1,"y":100},
-        {"x":x1,"y":120},
-        {"x":10,"y":120},
-        {"x":10,"y":160}];
+        {"x":x1,"y":step1},
+        {"x":x1,"y":step2},
+        {"x":10,"y":step2},
+        {"x":10,"y":step3}];
 
         d3.selectAll(".link")
         .data(d)
@@ -187,17 +175,20 @@
 
       function redraw() {
         plotWidth=container.node().getBoundingClientRect().width;
-        console.log(window.innerWidth,plotWidth);
+        console.log("redraw called");
         cellWidth=plotWidth/plotCategories.length;
-        menus.attr("width",plotWidth);
+        menus.attr("width",plotWidth)
+             .attr("height",function(d){return window.innerWidth<950 ? 180 : 100});
         d3.selectAll(".button")
           .attr("x",function(d,i){return cellWidth*i})
+          .attr("y",function(d){return window.innerWidth<950 ? 120 : 50})
           .attr("width",cellWidth)
         d3.selectAll(".buttonText")
-          .attr("x",10 )
+          .attr("x",function(d,i){return (cellWidth*i)+(cellWidth/2)})
+          .attr("y",function(d){return window.innerWidth<950 ? 110 : 40})
           .attr("width",cellWidth)
           .attr("text-anchor", function(d){return window.innerWidth<950 ? "start" : "middle"})
-          .attr("transform",function(d,i){return window.innerWidth<950 ? "translate("+( (cellWidth*i)+(cellWidth/2)-16 )+","+0+") rotate(-90 20 75)" : "translate("+( (cellWidth*i)+(cellWidth/2) -12 )+",0)"})
+          .attr("transform",function(d,i){return window.innerWidth<950 ? "translate("+( (cellWidth*i)+(cellWidth/2) -100 )+","+( (cellWidth*i)+(cellWidth/2)+10 )+") rotate(-90 50 50)" : "translate(0,0)"})
 
       }
 
